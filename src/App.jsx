@@ -1,113 +1,118 @@
-import { useState, useEffect } from "react"
-import { RiDeleteBinFill } from "react-icons/ri";
+import { useState } from "react";
 
-const App = () => {
-  console.log("first line to run")
-  const [todoList, setTodoList] = useState([])
-  const [title, setTitle] = useState('')
-  const [mounted, setMounted] = useState(false)
-  
-  const getStoredTodos = () => {
-    if (typeof window !== "undefined") {
-      console.log("trying to get data...")
-      const storedTodo = localStorage.getItem("todo")
-      if (storedTodo) {
-        console.log("return from getStored: ", JSON.parse(storedTodo) )
-        return JSON.parse(storedTodo)
-      }
-      return null
-    }
-  }
-  // to read existing data from localStorage
-  useEffect(() => {
-    const storedTodo = getStoredTodos()
-    console.log("return data inside effect.. ", storedTodo)
-    if (storedTodo) {
-      setTodoList(storedTodo)
-    }
-    setMounted(true)
-  }, [])
-  
-  console.log("fetched todo: ", todoList)
-
-  // to store data to localStorage
-  useEffect(() => { 
-    if (mounted) { 
-      console.log("It is mounted")
-      localStorage.setItem("todo", JSON.stringify(todoList))
-      console.log("storing: ", JSON.stringify(todoList))
-    }
-  }, [todoList, setTodoList])
-  
-
-  const handleChange = (e) => {
-    setTitle(e.target.value)
-  }
-
-  const addTodo = () => {
-    if(!title)return
-    setTodoList((prev) => [...prev, { title: title, completed: false }])
-    setTitle("")
-  }
-
-  const handleCompletedToggle = (index) => {
-    setTodoList(todoList.map((todo, i) => i === index ?
-      {...todo, completed: !todo.completed}: todo))
-  }
-
-  const handleDelete = (index) => {
-    let activeList = todoList.filter((todo, i)=>i!==index)
-    setTodoList(activeList)
-  }
-
+export const App = () => {
   return (
-    <div className="h-[100vh] w-[100vw] flex items-center justify-center">
-
-      {/* card */}
-      <div className="w-full h-full flex flex-col gap-2 ">
-        {/* title and form */}
-        <div className="bg-sky-800 w-[90%] h-[150px] text-white flex flex-col justify-center items-center">
-          {/*  */}
-          <h1 className="text-xl font-bold">Todo App</h1>
-          <div className="flex flex-col">
-            <input
-              value={title}
-              onChange={handleChange}
-              type="text" name="newTodo" className="py-1 px-2 border-[2px] rounded-md my-2  border-sky-400 " />
-            <button
-              onClick={addTodo}
-              className="bg-sky-700 w-full p-2 rounded-md my-1">Add New Todo</button>
-          </div>
-        </div>
-        {/* todo list */}
-        <div className="bg-sky-200 w-[90%] h-[600px] rounded-lg p-6 flex flex-col items-center">
-          <h2 className="text-lg font-semibold text-sky-800">My Todo Tasks</h2>
-
-          {/* List is rendered here */}
-          <ul className="my-4 space-y-2 w-full">
-            {todoList.length > 0 ?
-              todoList.map((todo, i) => (
-                <li key={i} className={`flex justify-between gap-2 rounded-md  p-2 ${todo.completed ? "bg-zinc-100" : "bg-sky-300 shadow-md"}`}>
-                  <h3 className={` ${todo.completed ? "text-gray-400" : "font-semibold"}`}>{todo.title}</h3>
-                  <div className="flex gap-2 items-center">
-                    {/* completed checkbox */}
-                    <input type="checkbox" value={todoList[i].completed}
-                      onChange={() => handleCompletedToggle(i)}
-                    />
-                    <span
-                      onClick={()=>handleDelete(i)}
-                      className="text-rose-900">
-                      <RiDeleteBinFill />
-                    </span>
-                  </div>
-                </li>
-              )) : <div className="w-full h-full text-center  ">Empty Tasks</div>
-            }
-          </ul>
-        </div>
+    <div className="flex flex-col gap-5 w-[700px] items-center">
+      <h1 className="text-2xl font-bold">
+        Demonstrating Dynamic Multi-Form Components
+      </h1>
+      <div>
+        <FormModal />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
+
+const FormModal = () => {
+  const [page, setPage] = useState(1);
+
+  const handleNext = () => {
+    if (page >= 3) {
+      setPage(3);
+    } else {
+      setPage((prev) => prev + 1);
+    }
+  };
+  const handlePrevious = () => {
+    if (page <= 1) {
+      setPage(1);
+    } else {
+      setPage((prev) => prev - 1);
+    }
+  };
+
+  return (
+    <div className="w-[400px] h-[300px] bg-slate-800 text-gray-100 flex flex-col justify-center items-center rounded-md">
+      <div className="p-3 w-full">
+        {page === 1 && (
+          <div className="flex flex-col gap-3 w-full">
+            <input
+              type="text"
+              name="firstname"
+              placeholder="First Name"
+              className="border-[1px] p-2 rounded-md w-full "
+            />
+            <input
+              type="text"
+              name="lastname"
+              placeholder="Last Name"
+              className="border-[1px] p-2 rounded-md w-full "
+            />
+          </div>
+        )}
+        {page === 2 && (
+          <div className="flex flex-col gap-3 w-full">
+            <input
+              type="address"
+              name="address"
+              placeholder="1, Bello Street, New York"
+              className="border-[1px] p-2 rounded-md w-full "
+            />
+            <input
+              type="phone"
+              name="phone"
+              placeholder="08123456789"
+              className="border-[1px] p-2 rounded-md w-full "
+            />
+          </div>
+        )}
+        {page === 3 && (
+          <div className="flex flex-col gap-3 w-full">
+            {/* Countries */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm">Country</span>
+              <select className="border-[1px] rounded-md p-2">
+                <option value={"Ghana"}>Ghana</option>
+                <option value={"Niger"}>Niger</option>
+                <option value={"Nigeria"}>Nigeria</option>
+              </select>
+            </label>
+            {/* States */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm">State</span>
+              <select className="border-[1px] rounded-md p-2">
+                <option value={"Nassarawa"}>Nassarawa</option>
+                <option value={"Lagos"}>Lagos</option>
+                <option value={"Enugu"}>Enugu</option>
+              </select>
+            </label>
+          </div>
+        )}
+      </div>
+      {/* buttons */}
+      <div className="w-full flex gap-2 justify-between  p-3">
+        <button
+          disabled={page === 1}
+          onClick={handlePrevious}
+          className="bg-sky-800 p-2 rounded-md hover:bg-sky-950 transition-colors duration-200"
+        >
+          Previous
+        </button>
+        {page === 3 ? (
+          <button className="bg-sky-800 p-2 rounded-md hover:bg-sky-950 transition-colors duration-200">
+            Submit
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            className="bg-green-800 p-2 rounded-md hover:bg-green-950 transition-colors duration-200"
+          >
+            Next
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
